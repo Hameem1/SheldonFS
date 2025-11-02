@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-import { FileScanner } from "../core/scanner/index.js"
-import type { FileMetadata, ScanError } from "../core/types.js"
-import { SourceSystem } from "../core/types.js"
+import { FileScanner } from "../core/scanner"
+import type { FileMetadata, ScanError } from "../core/types"
+import { SourceSystem } from "../core/types"
 
 const main = async () => {
     console.log("SheldonFS - File Organization System")
