@@ -33,5 +33,9 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2",
     "vitest": "^4.0.6"
+  },
+  "dependencies": {
+    "fast-glob": "^3.3.3",
+    "file-type": "^21.0.0"
   }
 }
