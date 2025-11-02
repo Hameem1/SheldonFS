@@ -108,7 +108,7 @@ const EXTENSION_CATEGORY_MAP: Record<string, FileCategory> = {
 /**
  * Determine file category based on extension and MIME type
  */
-function categorizeFile(extension: string, mimeType: string | null): FileCategory {
+const categorizeFile = (extension: string, mimeType: string | null): FileCategory => {
     // First try extension mapping
     const categoryFromExt = EXTENSION_CATEGORY_MAP[extension.toLowerCase()]
     if (categoryFromExt) {
@@ -132,7 +132,7 @@ function categorizeFile(extension: string, mimeType: string | null): FileCategor
 /**
  * Convert file permissions to octal string format
  */
-function permissionsToOctal(mode: number): string {
+const permissionsToOctal = (mode: number): string => {
     return (mode & 0o777).toString(8)
 }
 
@@ -144,7 +144,11 @@ function permissionsToOctal(mode: number): string {
  * @param calculateHash - Whether to calculate file hash (default: true)
  * @returns Promise resolving to FileMetadata
  */
-export async function extractMetadata(filePath: string, sourceSystem: SourceSystem, calculateHash: boolean = true): Promise<FileMetadata> {
+export const extractMetadata = async (
+    filePath: string,
+    sourceSystem: SourceSystem,
+    calculateHash: boolean = true
+): Promise<FileMetadata> => {
     // Use lstat to detect symlinks (stat follows symlinks, lstat doesn't)
     const stats = await lstat(filePath)
     const isSymlink = stats.isSymbolicLink()

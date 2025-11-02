@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 import { FileScanner } from "../core/scanner/index.js"
+import type { FileMetadata, ScanError } from "../core/types.js"
 import { SourceSystem } from "../core/types.js"
 
-async function main() {
+const main = async () => {
     console.log("SheldonFS - File Organization System")
     console.log("=====================================\n")
 
@@ -23,7 +24,7 @@ async function main() {
                 followSymlinks: false,
                 calculateHashes: true,
             },
-            (current, total, _currentFile) => {
+            (current: number, total: number, _currentFile: string) => {
                 // Simple progress indicator
                 if (current % 10 === 0 || current === total) {
                     process.stdout.write(`\rScanning: ${current}/${total} files...`)
@@ -41,7 +42,7 @@ async function main() {
 
         if (result.errors.length > 0) {
             console.log("\nErrors encountered:")
-            result.errors.slice(0, 5).forEach((err) => {
+            result.errors.slice(0, 5).forEach((err: ScanError) => {
                 console.log(`  - ${err.path}: ${err.message}`)
             })
             if (result.errors.length > 5) {
@@ -52,7 +53,7 @@ async function main() {
         // Show first 5 files as examples
         if (files.length > 0) {
             console.log("\nSample files:")
-            files.slice(0, 5).forEach((file) => {
+            files.slice(0, 5).forEach((file: FileMetadata) => {
                 console.log(`\n  ${file.name}`)
                 console.log(`    Path: ${file.path}`)
                 console.log(`    Size: ${formatBytes(file.size)}`)
@@ -73,7 +74,7 @@ async function main() {
 /**
  * Format bytes to human-readable string
  */
-function formatBytes(bytes: number): string {
+const formatBytes = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes"
     const k = 1024
     const sizes = ["Bytes", "KB", "MB", "GB", "TB"]
