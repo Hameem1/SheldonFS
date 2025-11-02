@@ -1,7 +1,7 @@
 import fg from "fast-glob"
 import { resolve } from "node:path"
 import { stat } from "node:fs/promises"
-import type { FileMetadata, ScanOptions, ScanResult, ScanError, ScanProgressCallback } from "../types"
+import type { FileMetadata, ScanOptions, ScanResult, ScanError, ScanProgressCallback } from "@/types"
 import { extractMetadata } from "./metadataExtractor"
 
 /**

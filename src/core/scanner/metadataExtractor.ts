@@ -1,8 +1,8 @@
 import { stat, lstat, readlink } from "node:fs/promises"
 import { basename, extname } from "node:path"
 import { fileTypeFromFile } from "file-type"
-import { FileCategory, SourceSystem } from "../types"
-import type { FileMetadata } from "../types"
+import { FileCategory, SourceSystem } from "@/types"
+import type { FileMetadata } from "@/types"
 import { calculateFileHash } from "./hashCalculator"
 
 /**

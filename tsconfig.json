@@ -39,7 +39,15 @@
 
     /* Other */
     "resolveJsonModule": true,
-    "allowJs": true
+    "allowJs": true,
+
+    /* Path Aliases */
+    "baseUrl": ".",
+    "paths": {
+      "@/core/*": ["src/core/*"],
+      "@/cli/*": ["src/cli/*"],
+      "@/types": ["src/core/types"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
