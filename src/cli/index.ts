@@ -2,7 +2,7 @@
 
 import { FileScanner } from "@/core/scanner"
 import type { FileMetadata, ScanError } from "@/types"
-import { SourceSystem } from "@/types"
+import { SourceSystem } from "@/enums"
 
 const main = async () => {
     console.log("SheldonFS - File Organization System")

@@ -39,14 +39,15 @@
 
     /* Other */
     "resolveJsonModule": true,
-    "allowJs": true,
+    "allowJs": false,
 
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
       "@/core/*": ["src/core/*"],
       "@/cli/*": ["src/cli/*"],
-      "@/types": ["src/core/types"]
+      "@/types": ["src/core/types"],
+      "@/enums": ["src/core/enums"]
     }
   },
   "include": ["src/**/*"],
