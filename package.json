@@ -6,8 +6,9 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
+    "bundle": "tsdown",
     "dev": "tsx src/cli/index.ts",
-    "start": "tsx src/cli/index.ts",
+    "start": "npm run bundle && node dist/index.js",
     "test": "vitest",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -29,6 +30,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "prettier": "^3.6.2",
+    "tsdown": "^0.15.12",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2",
