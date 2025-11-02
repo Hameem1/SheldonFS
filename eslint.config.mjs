@@ -1,8 +1,7 @@
 // @ts-check
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import prettierConfig from 'eslint-config-prettier';
-import prettierPlugin from 'eslint-plugin-prettier';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 
 export default tseslint.config(
   // ESLint recommended rules
@@ -11,15 +10,12 @@ export default tseslint.config(
   // TypeScript ESLint recommended rules
   ...tseslint.configs.recommended,
 
-  // Prettier integration
-  prettierConfig,
+  // Prettier integration (must be last to override other configs)
+  eslintPluginPrettierRecommended,
 
+  // Project-specific overrides
   {
-    plugins: {
-      prettier: prettierPlugin,
-    },
     rules: {
-      'prettier/prettier': 'error',
       // TypeScript specific overrides
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-unused-vars': ['error', {
