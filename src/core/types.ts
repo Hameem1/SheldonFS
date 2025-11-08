@@ -64,6 +64,15 @@ export interface FileMetadata {
 
     /** macOS Finder color label (if available and on macOS) */
     finderColor?: string
+
+    /** Inode number (unique file identifier on filesystem) */
+    inode: number
+
+    /** Number of hard links pointing to this file (>1 means file appears at multiple paths) */
+    hardLinkCount: number
+
+    /** Whether this file is executable (based on permissions on Unix/macOS, extension on Windows) */
+    isExecutable: boolean
 }
 
 /**

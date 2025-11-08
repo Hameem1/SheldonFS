@@ -68,6 +68,9 @@ const main = async () => {
                 if (file.finderColor) {
                     console.log(`    Finder Color: ${file.finderColor}`)
                 }
+                console.log(`    Inode: ${file.inode}`)
+                console.log(`    Hard Links: ${file.hardLinkCount}`)
+                console.log(`    Executable: ${file.isExecutable}`)
                 console.log(`    Hash: ${file.hash.substring(0, 16)}...`)
             })
             if (files.length > 5) {

@@ -154,6 +154,24 @@ const isFileHidden = (fileName: string): boolean => {
 }
 
 /**
+ * Check if a file is executable
+ * On Unix/macOS: checks execute permission bits
+ * On Windows: checks file extension
+ */
+const isFileExecutable = (mode: number, fileName: string): boolean => {
+    if (process.platform === "win32") {
+        // On Windows, check file extension
+        const executableExtensions = [".exe", ".bat", ".cmd", ".com", ".msi", ".ps1", ".vbs", ".wsf"]
+        const lowerName = fileName.toLowerCase()
+        return executableExtensions.some((ext) => lowerName.endsWith(ext))
+    }
+
+    // On Unix/macOS, check if any execute bit is set (user, group, or other)
+    // 0o111 = 001 001 001 (execute bit for user, group, other)
+    return (mode & 0o111) !== 0
+}
+
+/**
  * Calculate depth from scan root directory
  * Depth 0 = file in root directory
  * Depth 1 = file one level deep, etc.
@@ -312,6 +330,9 @@ export const extractMetadata = async (
         depth: calculateDepth(filePath, scanRootPath),
         finderTags,
         finderColor,
+        inode: fileStats.ino,
+        hardLinkCount: fileStats.nlink,
+        isExecutable: isFileExecutable(fileStats.mode, name),
     }
 
     return metadata
