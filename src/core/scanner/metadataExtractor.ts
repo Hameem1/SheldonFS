@@ -147,6 +147,9 @@ const permissionsToOctal = (mode: number): string => {
  * On Windows: would need to check file attributes (future enhancement)
  */
 const isFileHidden = (fileName: string): boolean => {
+    // TODO: Add Windows support - check FILE_ATTRIBUTE_HIDDEN using fs.stat() or Windows API
+    // On Windows, need to check: (stats.mode & 0x2) for hidden attribute
+    // May require platform-specific implementation or a library like 'is-hidden-file'
     return fileName.startsWith(".")
 }
 
