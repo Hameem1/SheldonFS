@@ -2,6 +2,7 @@ import { stat, lstat, readlink } from "node:fs/promises"
 import { basename, extname, relative, sep } from "node:path"
 import { execFile } from "node:child_process"
 import { promisify } from "node:util"
+import { userInfo } from "node:os"
 import { fileTypeFromFile } from "file-type"
 import mime from "mime"
 import { FileCategory, SourceSystem } from "@/enums"
@@ -9,6 +10,9 @@ import type { FileMetadata } from "@/types"
 import { calculateFileHash } from "./hashCalculator"
 
 const execFileAsync = promisify(execFile)
+
+// Cache for UID to username mapping to avoid repeated system calls
+const uidToUsernameCache = new Map<number, string>()
 
 /**
  * Extension to category mapping
@@ -248,6 +252,43 @@ const extractMacOSFinderTags = async (filePath: string): Promise<{ tags?: string
 }
 
 /**
+ * Get the username for a given UID
+ * Uses caching to avoid repeated system lookups
+ */
+const getOwnerName = async (uid: number): Promise<string | undefined> => {
+    // Check cache first
+    if (uidToUsernameCache.has(uid)) {
+        return uidToUsernameCache.get(uid)
+    }
+
+    try {
+        // Check if this is the current user (fast check)
+        const currentUser = userInfo()
+        if (currentUser.uid === uid) {
+            uidToUsernameCache.set(uid, currentUser.username)
+            return currentUser.username
+        }
+
+        // On Unix/macOS, use 'id' command to get username from UID
+        if (process.platform !== "win32") {
+            const { stdout } = await execFileAsync("id", ["-un", uid.toString()])
+            const username = stdout.trim()
+            if (username) {
+                uidToUsernameCache.set(uid, username)
+                return username
+            }
+        }
+
+        // TODO: Add Windows support - use Windows API to get username from SID
+        // For now, fall back to just the UID/SID number
+        return undefined
+    } catch {
+        // If lookup fails, return undefined (we'll omit the field)
+        return undefined
+    }
+}
+
+/**
  * Extract metadata from a file
  *
  * @param filePath - Absolute path to the file
@@ -311,6 +352,9 @@ export const extractMetadata = async (
     // Extract macOS Finder tags and color (if on macOS)
     const { tags: finderTags, color: finderColor } = await extractMacOSFinderTags(filePath)
 
+    // Get file owner username from UID
+    const owner = await getOwnerName(fileStats.uid)
+
     const metadata: FileMetadata = {
         path: filePath,
         name,
@@ -326,6 +370,7 @@ export const extractMetadata = async (
         isSymlink,
         symlinkTarget,
         permissions: permissionsToOctal(fileStats.mode),
+        owner,
         isHidden: isFileHidden(name),
         depth: calculateDepth(filePath, scanRootPath),
         finderTags,

@@ -62,6 +62,9 @@ const main = async () => {
                 console.log(`    Category: ${file.category}`)
                 console.log(`    Depth: ${file.depth}`)
                 console.log(`    Hidden: ${file.isHidden}`)
+                if (file.owner) {
+                    console.log(`    Owner: ${file.owner}`)
+                }
                 if (file.finderTags && file.finderTags.length > 0) {
                     console.log(`    Finder Tags: ${file.finderTags.join(", ")}`)
                 }
