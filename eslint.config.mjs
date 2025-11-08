@@ -30,6 +30,6 @@ export default tsEslint.config(
     },
 
     {
-        ignores: ["dist/**", "node_modules/**", "*.js", "*.mjs", "*.cjs"],
+        ignores: ["build/**", "node_modules/**", "*.js", "*.mjs", "*.cjs"],
     }
 )
