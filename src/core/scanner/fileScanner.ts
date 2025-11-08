@@ -75,7 +75,7 @@ export class FileScanner {
                 }
 
                 // Extract metadata
-                const metadata = await extractMetadata(filePath, options.sourceSystem, options.calculateHashes ?? true)
+                const metadata = await extractMetadata(filePath, options.sourceSystem, options.path, options.calculateHashes ?? true)
 
                 fileMetadataList.push(metadata)
             } catch (error) {

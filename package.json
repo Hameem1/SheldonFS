@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "fast-glob": "^3.3.3",
-    "file-type": "^21.0.0"
+    "file-type": "^21.0.0",
+    "mime": "^4.1.0"
   }
 }

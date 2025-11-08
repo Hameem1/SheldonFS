@@ -1,9 +1,14 @@
 import { stat, lstat, readlink } from "node:fs/promises"
-import { basename, extname } from "node:path"
+import { basename, extname, relative, sep } from "node:path"
+import { execFile } from "node:child_process"
+import { promisify } from "node:util"
 import { fileTypeFromFile } from "file-type"
+import mime from "mime"
 import { FileCategory, SourceSystem } from "@/enums"
 import type { FileMetadata } from "@/types"
 import { calculateFileHash } from "./hashCalculator"
+
+const execFileAsync = promisify(execFile)
 
 /**
  * Extension to category mapping
@@ -137,16 +142,103 @@ const permissionsToOctal = (mode: number): string => {
 }
 
 /**
+ * Check if a file is hidden
+ * On Unix/macOS: files starting with '.'
+ * On Windows: would need to check file attributes (future enhancement)
+ */
+const isFileHidden = (fileName: string): boolean => {
+    return fileName.startsWith(".")
+}
+
+/**
+ * Calculate depth from scan root directory
+ * Depth 0 = file in root directory
+ * Depth 1 = file one level deep, etc.
+ */
+const calculateDepth = (filePath: string, scanRoot: string): number => {
+    const relativePath = relative(scanRoot, filePath)
+    if (!relativePath || relativePath === ".") return 0
+
+    // Count directory separators in the relative path
+    const parts = relativePath.split(sep)
+    // Subtract 1 because the last part is the filename
+    return parts.length - 1
+}
+
+/**
+ * Extract macOS Finder tags and color from extended attributes
+ * Returns undefined if not on macOS or if no tags exist
+ */
+const extractMacOSFinderTags = async (filePath: string): Promise<{ tags?: string[]; color?: string }> => {
+    // Only try on macOS
+    if (process.platform !== "darwin") {
+        return {}
+    }
+
+    try {
+        // Read the Finder tags extended attribute
+        const { stdout } = await execFileAsync("xattr", ["-p", "com.apple.metadata:_kMDItemUserTags", filePath])
+
+        // Parse XML plist output
+        // Format: <plist><array><string>Tag1</string><string>Tag2\n6</string></array></plist>
+        // Tag names may include color codes like "TagName\n6" where 6 is the color code
+        const stringMatches = stdout.matchAll(/<string>([^<]+)<\/string>/g)
+        if (!stringMatches) return {}
+
+        const tags: string[] = []
+        let color: string | undefined
+
+        for (const match of stringMatches) {
+            const tagData = match[1]?.trim()
+            if (!tagData) continue
+
+            // Check if tag includes color code (format: "TagName\n6")
+            const parts = tagData.split("\n")
+            const tagName = parts[0]?.trim()
+            const colorCode = parts[1]?.trim()
+
+            if (tagName) {
+                tags.push(tagName)
+
+                // Extract color if present (macOS uses color codes 1-7)
+                if (colorCode && colorCode !== "0") {
+                    const colorMap: Record<string, string> = {
+                        "1": "Gray",
+                        "2": "Green",
+                        "3": "Purple",
+                        "4": "Blue",
+                        "5": "Yellow",
+                        "6": "Red",
+                        "7": "Orange",
+                    }
+                    color = colorMap[colorCode] || "Unknown"
+                }
+            }
+        }
+
+        return {
+            tags: tags.length > 0 ? tags : undefined,
+            color,
+        }
+    } catch {
+        // File has no tags or xattr failed
+        return {}
+    }
+}
+
+/**
  * Extract metadata from a file
  *
  * @param filePath - Absolute path to the file
  * @param sourceSystem - Source system where file is located
+ * @param scanRootPath - Root directory being scanned (for depth calculation)
  * @param calculateHash - Whether to calculate file hash (default: true)
  * @returns Promise resolving to FileMetadata
  */
 export const extractMetadata = async (
     filePath: string,
     sourceSystem: SourceSystem,
+    scanRootPath: string,
     calculateHash: boolean = true
 ): Promise<FileMetadata> => {
     // Use lstat to detect symlinks (stat follows symlinks, lstat doesn't)
@@ -160,13 +252,18 @@ export const extractMetadata = async (
     const name = basename(filePath)
     const extension = extname(filePath).slice(1) // Remove leading dot
 
-    // Get MIME type
+    // Get MIME type (try file-type first, then fallback to mime package for text files)
     let mimeType: string | null = null
     try {
         const fileType = await fileTypeFromFile(filePath)
         mimeType = fileType?.mime ?? null
     } catch {
         // If MIME detection fails, continue without it
+    }
+
+    // Fallback to extension-based MIME type lookup for text files
+    if (!mimeType && extension) {
+        mimeType = mime.getType(extension)
     }
 
     // Calculate hash if requested
@@ -190,6 +287,9 @@ export const extractMetadata = async (
         }
     }
 
+    // Extract macOS Finder tags and color (if on macOS)
+    const { tags: finderTags, color: finderColor } = await extractMacOSFinderTags(filePath)
+
     const metadata: FileMetadata = {
         path: filePath,
         name,
@@ -205,6 +305,10 @@ export const extractMetadata = async (
         isSymlink,
         symlinkTarget,
         permissions: permissionsToOctal(fileStats.mode),
+        isHidden: isFileHidden(name),
+        depth: calculateDepth(filePath, scanRootPath),
+        finderTags,
+        finderColor,
     }
 
     return metadata

@@ -57,8 +57,17 @@ const main = async () => {
                 console.log(`\n  ${file.name}`)
                 console.log(`    Path: ${file.path}`)
                 console.log(`    Size: ${formatBytes(file.size)}`)
+                console.log(`    Extension: ${file.extension || "none"}`)
                 console.log(`    Type: ${file.mimeType || "unknown"}`)
                 console.log(`    Category: ${file.category}`)
+                console.log(`    Depth: ${file.depth}`)
+                console.log(`    Hidden: ${file.isHidden}`)
+                if (file.finderTags && file.finderTags.length > 0) {
+                    console.log(`    Finder Tags: ${file.finderTags.join(", ")}`)
+                }
+                if (file.finderColor) {
+                    console.log(`    Finder Color: ${file.finderColor}`)
+                }
                 console.log(`    Hash: ${file.hash.substring(0, 16)}...`)
             })
             if (files.length > 5) {

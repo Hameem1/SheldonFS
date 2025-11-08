@@ -52,6 +52,18 @@ export interface FileMetadata {
 
     /** File owner (if available) */
     owner?: string
+
+    /** Whether this file is hidden (starts with . on Unix/macOS, or has hidden attribute on Windows) */
+    isHidden: boolean
+
+    /** Depth from the scan root directory (0 = files in root, 1 = one level deep, etc.) */
+    depth: number
+
+    /** macOS Finder tags (if available and on macOS) */
+    finderTags?: string[]
+
+    /** macOS Finder color label (if available and on macOS) */
+    finderColor?: string
 }
 
 /**
