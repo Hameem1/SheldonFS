@@ -2,16 +2,19 @@
   "name": "sheldonfs",
   "version": "0.1.0",
   "description": "Cross-platform file organization and management system",
-  "main": "dist/index.js",
+  "main": "build/index.js",
   "type": "module",
   "scripts": {
     "build": "tsc",
     "bundle": "tsdown",
     "dev": "tsx src/cli/index.ts",
-    "start": "npm run bundle && node dist/index.js",
+    "start": "npm run bundle && node build/index.js",
+    "typecheck": "tsc --noEmit",
     "test": "vitest",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "nuke": "rm -rf node_modules build package-lock.json *.tsbuildinfo",
+    "clean-install": "npm run nuke && npm install"
   },
   "keywords": [
     "file-management",
