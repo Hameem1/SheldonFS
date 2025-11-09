@@ -1,7 +1,8 @@
 import { defineConfig } from "vitest/config"
-import path from "node:path"
+import tsconfigPaths from "vite-tsconfig-paths"
 
 export default defineConfig({
+    plugins: [tsconfigPaths()],
     test: {
         globals: true,
         environment: "node",
@@ -18,14 +19,5 @@ export default defineConfig({
         },
         // Cleanup temp files after each test
         setupFiles: ["./src/__tests__/helpers/setup.ts"],
-    },
-    resolve: {
-        alias: {
-            "@/core": path.resolve(__dirname, "./src/core"),
-            "@/cli": path.resolve(__dirname, "./src/cli"),
-            "@/types": path.resolve(__dirname, "./src/core/types"),
-            "@/enums": path.resolve(__dirname, "./src/core/enums"),
-            "@/__tests__": path.resolve(__dirname, "./src/__tests__"),
-        },
     },
 })
