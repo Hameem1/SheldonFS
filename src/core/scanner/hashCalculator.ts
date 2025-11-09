@@ -52,6 +52,12 @@ export const calculatePartialHash = async (filePath: string, maxBytes: number = 
     const fileStats = await stat(filePath)
     const bytesToRead = Math.min(fileStats.size, maxBytes)
 
+    // Handle empty files
+    if (bytesToRead === 0) {
+        const hash = createHash("sha256")
+        return hash.digest("hex")
+    }
+
     return new Promise((resolve, reject) => {
         const hash = createHash("sha256")
         const stream = createReadStream(filePath, {
