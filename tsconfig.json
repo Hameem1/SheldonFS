@@ -47,7 +47,8 @@
       "@/core/*": ["src/core/*"],
       "@/cli/*": ["src/cli/*"],
       "@/types": ["src/core/types"],
-      "@/enums": ["src/core/enums"]
+      "@/enums": ["src/core/enums"],
+      "@/__tests__/*": ["src/__tests__/*"]
     }
   },
   "include": ["src/**/*"],
