@@ -3,20 +3,7 @@ import { resolve } from "node:path"
 import { stat } from "node:fs/promises"
 import type { FileMetadata, ScanOptions, ScanResult, ScanError, ScanProgressCallback } from "@/types"
 import { extractMetadata } from "./metadataExtractor"
-
-/**
- * Default patterns to exclude from scanning
- */
-const DEFAULT_EXCLUDE_PATTERNS = [
-    "**/node_modules/**",
-    "**/.git/**",
-    "**/.svn/**",
-    "**/.hg/**",
-    "**/Library/Caches/**",
-    "**/AppData/Local/Temp/**",
-    "**/$RECYCLE.BIN/**",
-    "**/System Volume Information/**",
-]
+import { DEFAULT_EXCLUDE_PATTERNS } from "@/core/config/scanExclusions"
 
 /**
  * FileScanner class for scanning directories and extracting file metadata

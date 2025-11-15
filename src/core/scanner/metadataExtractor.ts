@@ -8,111 +8,12 @@ import mime from "mime"
 import { FileCategory, SourceSystem } from "@/enums"
 import type { FileMetadata } from "@/types"
 import { calculateFileHash } from "./hashCalculator"
+import { EXTENSION_CATEGORY_MAP } from "@/core/config/fileExtensions"
 
 const execFileAsync = promisify(execFile)
 
 // Cache for UID to username mapping to avoid repeated system calls
 const uidToUsernameCache = new Map<number, string>()
-
-/**
- * Extension to category mapping
- */
-const EXTENSION_CATEGORY_MAP: Record<string, FileCategory> = {
-    // Documents
-    pdf: FileCategory.DOCUMENT,
-    doc: FileCategory.DOCUMENT,
-    docx: FileCategory.DOCUMENT,
-    txt: FileCategory.DOCUMENT,
-    rtf: FileCategory.DOCUMENT,
-    odt: FileCategory.DOCUMENT,
-    xls: FileCategory.DOCUMENT,
-    xlsx: FileCategory.DOCUMENT,
-    ppt: FileCategory.DOCUMENT,
-    pptx: FileCategory.DOCUMENT,
-    csv: FileCategory.DOCUMENT,
-    md: FileCategory.DOCUMENT,
-
-    // Images
-    jpg: FileCategory.IMAGE,
-    jpeg: FileCategory.IMAGE,
-    png: FileCategory.IMAGE,
-    gif: FileCategory.IMAGE,
-    bmp: FileCategory.IMAGE,
-    svg: FileCategory.IMAGE,
-    webp: FileCategory.IMAGE,
-    tiff: FileCategory.IMAGE,
-    ico: FileCategory.IMAGE,
-    heic: FileCategory.IMAGE,
-    heif: FileCategory.IMAGE,
-
-    // Videos
-    mp4: FileCategory.VIDEO,
-    avi: FileCategory.VIDEO,
-    mkv: FileCategory.VIDEO,
-    mov: FileCategory.VIDEO,
-    wmv: FileCategory.VIDEO,
-    flv: FileCategory.VIDEO,
-    webm: FileCategory.VIDEO,
-    m4v: FileCategory.VIDEO,
-    mpg: FileCategory.VIDEO,
-    mpeg: FileCategory.VIDEO,
-
-    // Audio
-    mp3: FileCategory.AUDIO,
-    wav: FileCategory.AUDIO,
-    flac: FileCategory.AUDIO,
-    aac: FileCategory.AUDIO,
-    ogg: FileCategory.AUDIO,
-    wma: FileCategory.AUDIO,
-    m4a: FileCategory.AUDIO,
-    opus: FileCategory.AUDIO,
-
-    // Archives
-    zip: FileCategory.ARCHIVE,
-    rar: FileCategory.ARCHIVE,
-    "7z": FileCategory.ARCHIVE,
-    tar: FileCategory.ARCHIVE,
-    gz: FileCategory.ARCHIVE,
-    bz2: FileCategory.ARCHIVE,
-    xz: FileCategory.ARCHIVE,
-    dmg: FileCategory.ARCHIVE,
-    iso: FileCategory.ARCHIVE,
-
-    // Code
-    js: FileCategory.CODE,
-    ts: FileCategory.CODE,
-    jsx: FileCategory.CODE,
-    tsx: FileCategory.CODE,
-    py: FileCategory.CODE,
-    java: FileCategory.CODE,
-    c: FileCategory.CODE,
-    cpp: FileCategory.CODE,
-    h: FileCategory.CODE,
-    cs: FileCategory.CODE,
-    php: FileCategory.CODE,
-    rb: FileCategory.CODE,
-    go: FileCategory.CODE,
-    rs: FileCategory.CODE,
-    swift: FileCategory.CODE,
-    kt: FileCategory.CODE,
-    html: FileCategory.CODE,
-    css: FileCategory.CODE,
-    scss: FileCategory.CODE,
-    json: FileCategory.CODE,
-    xml: FileCategory.CODE,
-    yaml: FileCategory.CODE,
-    yml: FileCategory.CODE,
-    sql: FileCategory.CODE,
-    sh: FileCategory.CODE,
-
-    // Executables
-    exe: FileCategory.EXECUTABLE,
-    dll: FileCategory.EXECUTABLE,
-    so: FileCategory.EXECUTABLE,
-    dylib: FileCategory.EXECUTABLE,
-    app: FileCategory.EXECUTABLE,
-    msi: FileCategory.EXECUTABLE,
-}
 
 /**
  * Determine file category based on extension and MIME type

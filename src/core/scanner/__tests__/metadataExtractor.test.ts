@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest"
 import { extractMetadata } from "@/core/scanner"
 import { SourceSystem, FileCategory } from "@/enums"
 import { detectSourceSystem, isMacOS, isWindows } from "@/core/utils/systemDetection"
+import { EXTENSION_CATEGORIES } from "@/core/config/fileExtensions"
 import {
     createTempFile,
     createTempDir,
@@ -65,7 +66,7 @@ describe("metadataExtractor", () => {
 
     describe("extractMetadata - Category Detection", () => {
         it("should categorize document files correctly", async () => {
-            const extensions = ["pdf", "doc", "docx", "txt", "md", "csv"]
+            const extensions = EXTENSION_CATEGORIES[FileCategory.DOCUMENT]
 
             for (const ext of extensions) {
                 const filePath = await createTempFile({ content: "test", extension: ext })
@@ -77,7 +78,7 @@ describe("metadataExtractor", () => {
         })
 
         it("should categorize image files correctly", async () => {
-            const extensions = ["jpg", "jpeg", "png", "gif", "svg", "webp"]
+            const extensions = EXTENSION_CATEGORIES[FileCategory.IMAGE]
 
             for (const ext of extensions) {
                 const filePath = await createTempFile({ content: "test", extension: ext })
@@ -89,7 +90,7 @@ describe("metadataExtractor", () => {
         })
 
         it("should categorize video files correctly", async () => {
-            const extensions = ["mp4", "avi", "mkv", "mov", "webm"]
+            const extensions = EXTENSION_CATEGORIES[FileCategory.VIDEO]
 
             for (const ext of extensions) {
                 const filePath = await createTempFile({ content: "test", extension: ext })
@@ -101,7 +102,7 @@ describe("metadataExtractor", () => {
         })
 
         it("should categorize audio files correctly", async () => {
-            const extensions = ["mp3", "wav", "flac", "aac", "ogg"]
+            const extensions = EXTENSION_CATEGORIES[FileCategory.AUDIO]
 
             for (const ext of extensions) {
                 const filePath = await createTempFile({ content: "test", extension: ext })
@@ -113,7 +114,7 @@ describe("metadataExtractor", () => {
         })
 
         it("should categorize archive files correctly", async () => {
-            const extensions = ["zip", "rar", "7z", "tar", "gz"]
+            const extensions = EXTENSION_CATEGORIES[FileCategory.ARCHIVE]
 
             for (const ext of extensions) {
                 const filePath = await createTempFile({ content: "test", extension: ext })
@@ -125,7 +126,7 @@ describe("metadataExtractor", () => {
         })
 
         it("should categorize code files correctly", async () => {
-            const extensions = ["js", "ts", "py", "java", "html", "css", "json", "yaml"]
+            const extensions = EXTENSION_CATEGORIES[FileCategory.CODE]
 
             for (const ext of extensions) {
                 const filePath = await createTempFile({ content: "test", extension: ext })
@@ -137,7 +138,7 @@ describe("metadataExtractor", () => {
         })
 
         it("should categorize executable files correctly", async () => {
-            const extensions = ["exe", "dll", "so", "dylib"]
+            const extensions = EXTENSION_CATEGORIES[FileCategory.EXECUTABLE]
 
             for (const ext of extensions) {
                 const filePath = await createTempFile({ content: "test", extension: ext })
