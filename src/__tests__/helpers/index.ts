@@ -5,4 +5,3 @@
 
 export * from "./fileGenerator"
 export * from "./cleanup"
-export * from "./systemDetection"

@@ -9,28 +9,32 @@ export const detectSourceSystem = (): SourceSystem => {
         case "darwin":
             return SourceSystem.MACOS
         case "linux":
-            // Note: Could further detect if it's Ubuntu specifically, but for now
-            // we'll use UBUNTU as the general Linux source system
-            return SourceSystem.UBUNTU
+            return SourceSystem.LINUX
         case "win32":
             return SourceSystem.WINDOWS
         default:
-            // Fallback to UBUNTU for unknown Unix-like systems
-            return SourceSystem.UBUNTU
+            // Fallback to LINUX for unknown Unix-like systems
+            return SourceSystem.LINUX
     }
 }
 
 /**
  * Check if the current platform is macOS
  */
-export const isMacOS = (): boolean => process.platform === "darwin"
+export const isMacOS = (): boolean => {
+    return detectSourceSystem() === SourceSystem.MACOS
+}
 
 /**
  * Check if the current platform is Windows
  */
-export const isWindows = (): boolean => process.platform === "win32"
+export const isWindows = (): boolean => {
+    return detectSourceSystem() === SourceSystem.WINDOWS
+}
 
 /**
  * Check if the current platform is Linux
  */
-export const isLinux = (): boolean => process.platform === "linux"
+export const isLinux = (): boolean => {
+    return detectSourceSystem() === SourceSystem.LINUX
+}

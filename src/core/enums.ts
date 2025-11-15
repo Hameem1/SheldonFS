@@ -8,7 +8,7 @@
  */
 export enum SourceSystem {
     WINDOWS = "windows",
-    UBUNTU = "ubuntu",
+    LINUX = "linux",
     MACOS = "macos",
     GOOGLE_DRIVE = "google_drive",
 }

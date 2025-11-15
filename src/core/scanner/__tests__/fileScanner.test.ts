@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach } from "vitest"
 import { FileScanner } from "../fileScanner"
 import { SourceSystem, FileCategory } from "@/enums"
 import type { ScanOptions, ScanProgressCallback } from "@/types"
-import { createTempDir, createTempFile, createFileStructure, createHiddenFile, detectSourceSystem } from "@/__tests__/helpers"
+import { detectSourceSystem } from "@/core/utils/systemDetection"
+import { createTempDir, createTempFile, createFileStructure, createHiddenFile } from "@/__tests__/helpers"
 
 // Auto-detect the current source system for tests
 const currentSourceSystem = detectSourceSystem()
@@ -449,7 +450,7 @@ describe("FileScanner", () => {
             const scanPath = await createTempDir()
             await createTempFile({ content: "test", directory: scanPath })
 
-            const systems = [SourceSystem.MACOS, SourceSystem.UBUNTU, SourceSystem.WINDOWS, SourceSystem.GOOGLE_DRIVE]
+            const systems = [SourceSystem.MACOS, SourceSystem.LINUX, SourceSystem.WINDOWS, SourceSystem.GOOGLE_DRIVE]
 
             for (const system of systems) {
                 const options: ScanOptions = {

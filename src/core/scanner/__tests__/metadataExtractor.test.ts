@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { extractMetadata } from "@/core/scanner"
 import { SourceSystem, FileCategory } from "@/enums"
+import { detectSourceSystem, isMacOS, isWindows } from "@/core/utils/systemDetection"
 import {
     createTempFile,
     createTempDir,
@@ -8,9 +9,6 @@ import {
     createHiddenFile,
     createExecutableFile,
     createFileStructure,
-    detectSourceSystem,
-    isMacOS,
-    isWindows,
 } from "@/__tests__/helpers"
 
 // Auto-detect the current source system for tests
@@ -372,7 +370,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: "system test" })
             const scanRoot = await createTempDir()
 
-            const systems = [SourceSystem.MACOS, SourceSystem.UBUNTU, SourceSystem.WINDOWS, SourceSystem.GOOGLE_DRIVE]
+            const systems = [SourceSystem.MACOS, SourceSystem.LINUX, SourceSystem.WINDOWS, SourceSystem.GOOGLE_DRIVE]
 
             for (const system of systems) {
                 const metadata = await extractMetadata(filePath, system, scanRoot)

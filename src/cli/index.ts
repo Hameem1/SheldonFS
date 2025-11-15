@@ -2,7 +2,7 @@
 
 import { FileScanner } from "@/core/scanner"
 import type { FileMetadata, ScanError } from "@/types"
-import { SourceSystem } from "@/enums"
+import { detectSourceSystem } from "@/core/utils/systemDetection"
 
 const main = async () => {
     console.log("SheldonFS - File Organization System")
@@ -19,7 +19,7 @@ const main = async () => {
         const { files, result } = await scanner.scanWithResults(
             {
                 path: targetPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: detectSourceSystem(),
                 includeHidden: false,
                 followSymlinks: false,
                 calculateHashes: true,
