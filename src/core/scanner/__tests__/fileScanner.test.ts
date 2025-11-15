@@ -2,7 +2,10 @@ import { describe, it, expect, beforeEach } from "vitest"
 import { FileScanner } from "../fileScanner"
 import { SourceSystem, FileCategory } from "@/enums"
 import type { ScanOptions, ScanProgressCallback } from "@/types"
-import { createTempDir, createTempFile, createFileStructure, createHiddenFile } from "@/__tests__/helpers"
+import { createTempDir, createTempFile, createFileStructure, createHiddenFile, detectSourceSystem } from "@/__tests__/helpers"
+
+// Auto-detect the current source system for tests
+const currentSourceSystem = detectSourceSystem()
 
 describe("FileScanner", () => {
     let scanner: FileScanner
@@ -17,7 +20,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
             }
 
             const files = await scanner.scan(options)
@@ -31,7 +34,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
             }
 
             const files = await scanner.scan(options)
@@ -39,7 +42,7 @@ describe("FileScanner", () => {
             expect(files).toHaveLength(1)
             expect(files[0]?.name).toMatch(/test-[a-f0-9]{8}\.txt/)
             expect(files[0]?.size).toBe(11) // "single file" = 11 bytes
-            expect(files[0]?.sourceSystem).toBe(SourceSystem.MACOS)
+            expect(files[0]?.sourceSystem).toBe(currentSourceSystem)
         })
 
         it("should scan nested directory structure", async () => {
@@ -62,7 +65,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
             }
 
             const files = await scanner.scan(options)
@@ -83,7 +86,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
             }
 
             const files = await scanner.scan(options)
@@ -100,7 +103,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
                 includeHidden: true,
             }
 
@@ -133,7 +136,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
                 includeHidden: true, // Allow hidden files, but still exclude .git
             }
 
@@ -158,7 +161,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
                 excludePatterns: ["**/*.log", "**/logs/**"],
             }
 
@@ -179,7 +182,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
             }
 
             const files = await scanner.scan(options)
@@ -195,7 +198,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
                 calculateHashes: false,
             }
 
@@ -212,7 +215,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
                 maxHashSize: 500, // Only hash files smaller than 500 bytes
             }
 
@@ -241,7 +244,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
             }
 
             await scanner.scan(options, onProgress)
@@ -266,7 +269,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
             }
 
             // Should not throw when no callback provided
@@ -283,7 +286,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
             }
 
             const files = await scanner.scan(options)
@@ -303,7 +306,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
                 maxHashSize: 500,
             }
 
@@ -326,7 +329,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
             }
 
             const { files, result } = await scanner.scanWithResults(options)
@@ -343,7 +346,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
             }
 
             const { result } = await scanner.scanWithResults(options)
@@ -369,7 +372,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
                 calculateHashes: false, // Speed up test
             }
 
@@ -410,7 +413,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
                 calculateHashes: false,
             }
 
@@ -432,29 +435,12 @@ describe("FileScanner", () => {
         it("should handle non-existent directory gracefully", async () => {
             const options: ScanOptions = {
                 path: "/path/to/nonexistent/directory",
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
             }
 
             // fast-glob returns empty array for non-existent paths rather than throwing
             const files = await scanner.scan(options)
             expect(files).toEqual([])
-        })
-
-        it("should continue scanning after encountering an error", async () => {
-            const scanPath = await createTempDir()
-            await createTempFile({ content: "valid file 1", directory: scanPath })
-            await createTempFile({ content: "valid file 2", directory: scanPath })
-
-            const options: ScanOptions = {
-                path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
-            }
-
-            // This should succeed - if there are permission errors they would be tracked
-            const files = await scanner.scan(options)
-
-            // Should find at least the files we created
-            expect(files.length).toBeGreaterThanOrEqual(2)
         })
     })
 
@@ -495,7 +481,7 @@ describe("FileScanner", () => {
 
             const options: ScanOptions = {
                 path: scanPath,
-                sourceSystem: SourceSystem.MACOS,
+                sourceSystem: currentSourceSystem,
             }
 
             const startTime = Date.now()

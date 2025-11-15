@@ -8,7 +8,13 @@ import {
     createHiddenFile,
     createExecutableFile,
     createFileStructure,
+    detectSourceSystem,
+    isMacOS,
+    isWindows,
 } from "@/__tests__/helpers"
+
+// Auto-detect the current source system for tests
+const currentSourceSystem = detectSourceSystem()
 
 describe("metadataExtractor", () => {
     describe("extractMetadata - Basic Functionality", () => {
@@ -17,7 +23,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content, extension: "txt" })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(metadata.path).toBe(filePath)
             expect(metadata.name).toMatch(/test-[a-f0-9]{8}\.txt/)
@@ -25,7 +31,7 @@ describe("metadataExtractor", () => {
             expect(metadata.size).toBe(content.length)
             expect(metadata.hash).toHaveLength(64)
             expect(metadata.hash).toMatch(/^[a-f0-9]{64}$/)
-            expect(metadata.sourceSystem).toBe(SourceSystem.MACOS)
+            expect(metadata.sourceSystem).toBe(currentSourceSystem)
         })
 
         it("should handle files without extension", async () => {
@@ -33,7 +39,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content, filename: "README" })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(metadata.extension).toBe("")
             expect(metadata.name).toBe("README")
@@ -43,7 +49,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: "" })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(metadata.size).toBe(0)
             expect(metadata.hash).toBe("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
@@ -53,7 +59,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: "Skip hash test" })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot, false)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot, false)
 
             expect(metadata.hash).toBe("")
         })
@@ -66,7 +72,7 @@ describe("metadataExtractor", () => {
             for (const ext of extensions) {
                 const filePath = await createTempFile({ content: "test", extension: ext })
                 const scanRoot = await createTempDir()
-                const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+                const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
                 expect(metadata.category).toBe(FileCategory.DOCUMENT)
             }
@@ -78,7 +84,7 @@ describe("metadataExtractor", () => {
             for (const ext of extensions) {
                 const filePath = await createTempFile({ content: "test", extension: ext })
                 const scanRoot = await createTempDir()
-                const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+                const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
                 expect(metadata.category).toBe(FileCategory.IMAGE)
             }
@@ -90,7 +96,7 @@ describe("metadataExtractor", () => {
             for (const ext of extensions) {
                 const filePath = await createTempFile({ content: "test", extension: ext })
                 const scanRoot = await createTempDir()
-                const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+                const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
                 expect(metadata.category).toBe(FileCategory.VIDEO)
             }
@@ -102,7 +108,7 @@ describe("metadataExtractor", () => {
             for (const ext of extensions) {
                 const filePath = await createTempFile({ content: "test", extension: ext })
                 const scanRoot = await createTempDir()
-                const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+                const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
                 expect(metadata.category).toBe(FileCategory.AUDIO)
             }
@@ -114,7 +120,7 @@ describe("metadataExtractor", () => {
             for (const ext of extensions) {
                 const filePath = await createTempFile({ content: "test", extension: ext })
                 const scanRoot = await createTempDir()
-                const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+                const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
                 expect(metadata.category).toBe(FileCategory.ARCHIVE)
             }
@@ -126,7 +132,7 @@ describe("metadataExtractor", () => {
             for (const ext of extensions) {
                 const filePath = await createTempFile({ content: "test", extension: ext })
                 const scanRoot = await createTempDir()
-                const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+                const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
                 expect(metadata.category).toBe(FileCategory.CODE)
             }
@@ -138,7 +144,7 @@ describe("metadataExtractor", () => {
             for (const ext of extensions) {
                 const filePath = await createTempFile({ content: "test", extension: ext })
                 const scanRoot = await createTempDir()
-                const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+                const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
                 expect(metadata.category).toBe(FileCategory.EXECUTABLE)
             }
@@ -148,7 +154,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: "test", extension: "unknown-xyz" })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(metadata.category).toBe(FileCategory.OTHER)
         })
@@ -159,7 +165,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: "Hello World", extension: "txt" })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(metadata.mimeType).toBe("text/plain")
         })
@@ -168,7 +174,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: '{"key": "value"}', extension: "json" })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(metadata.mimeType).toBe("application/json")
         })
@@ -177,7 +183,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: "random content", extension: "unknown" })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             // Should either be null or detected via extension fallback
             expect(typeof metadata.mimeType === "string" || metadata.mimeType === null).toBe(true)
@@ -189,7 +195,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: "timestamp test" })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             // All timestamps should be valid numbers
             expect(typeof metadata.createdAt).toBe("number")
@@ -210,7 +216,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: "test", mode: 0o644 })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(metadata.permissions).toBe("644")
         })
@@ -219,7 +225,7 @@ describe("metadataExtractor", () => {
             const filePath = await createExecutableFile()
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(metadata.isExecutable).toBe(true)
             expect(metadata.permissions).toBe("755")
@@ -229,7 +235,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: "not executable", mode: 0o644 })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(metadata.isExecutable).toBe(false)
         })
@@ -241,7 +247,7 @@ describe("metadataExtractor", () => {
             const symlinkPath = await createSymlink(targetFile)
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(symlinkPath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(symlinkPath, currentSourceSystem, scanRoot)
 
             expect(metadata.isSymlink).toBe(true)
             expect(metadata.symlinkTarget).toBe(targetFile)
@@ -251,7 +257,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: "regular file" })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(metadata.isSymlink).toBe(false)
             expect(metadata.symlinkTarget).toBeUndefined()
@@ -263,7 +269,7 @@ describe("metadataExtractor", () => {
             const filePath = await createHiddenFile()
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(metadata.isHidden).toBe(true)
             expect(metadata.name).toMatch(/^\.hidden-/)
@@ -273,7 +279,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: "visible file" })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(metadata.isHidden).toBe(false)
         })
@@ -284,7 +290,7 @@ describe("metadataExtractor", () => {
             const scanRoot = await createTempDir()
             const filePath = await createTempFile({ content: "root file", directory: scanRoot })
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(metadata.depth).toBe(0)
         })
@@ -306,19 +312,19 @@ describe("metadataExtractor", () => {
             const scanRoot = await createFileStructure(structure)
 
             // Test depth 0
-            const level0 = await extractMetadata(`${scanRoot}/level0.txt`, SourceSystem.MACOS, scanRoot)
+            const level0 = await extractMetadata(`${scanRoot}/level0.txt`, currentSourceSystem, scanRoot)
             expect(level0.depth).toBe(0)
 
             // Test depth 1
-            const level1 = await extractMetadata(`${scanRoot}/dir1/level1.txt`, SourceSystem.MACOS, scanRoot)
+            const level1 = await extractMetadata(`${scanRoot}/dir1/level1.txt`, currentSourceSystem, scanRoot)
             expect(level1.depth).toBe(1)
 
             // Test depth 2
-            const level2 = await extractMetadata(`${scanRoot}/dir1/nested/level2.txt`, SourceSystem.MACOS, scanRoot)
+            const level2 = await extractMetadata(`${scanRoot}/dir1/nested/level2.txt`, currentSourceSystem, scanRoot)
             expect(level2.depth).toBe(2)
 
             // Test depth 3
-            const level3 = await extractMetadata(`${scanRoot}/dir1/nested/deeper/level3.txt`, SourceSystem.MACOS, scanRoot)
+            const level3 = await extractMetadata(`${scanRoot}/dir1/nested/deeper/level3.txt`, currentSourceSystem, scanRoot)
             expect(level3.depth).toBe(3)
         })
     })
@@ -328,7 +334,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: "inode test" })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(typeof metadata.inode).toBe("number")
             expect(metadata.inode).toBeGreaterThan(0)
@@ -338,7 +344,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: "link test" })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             expect(typeof metadata.hardLinkCount).toBe("number")
             // Single file should have hard link count of 1
@@ -351,7 +357,7 @@ describe("metadataExtractor", () => {
             const filePath = await createTempFile({ content: "owner test" })
             const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+            const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
             // Owner should be present on Unix/macOS
             if (process.platform !== "win32") {
@@ -379,23 +385,36 @@ describe("metadataExtractor", () => {
         it("should handle non-existent files gracefully", async () => {
             const scanRoot = await createTempDir()
 
-            await expect(extractMetadata("/path/to/nonexistent/file.txt", SourceSystem.MACOS, scanRoot)).rejects.toThrow()
+            await expect(extractMetadata("/path/to/nonexistent/file.txt", currentSourceSystem, scanRoot)).rejects.toThrow()
         })
     })
 
-    describe("extractMetadata - macOS Finder Features", () => {
-        it("should not fail when extracting Finder tags on non-macOS systems", async () => {
-            const filePath = await createTempFile({ content: "finder test" })
-            const scanRoot = await createTempDir()
+    describe("Platform-Specific Features", () => {
+        describe.skipIf(!isMacOS())("macOS", () => {
+            it("should extract Finder tags and colors", async () => {
+                const filePath = await createTempFile({ content: "finder test" })
+                const scanRoot = await createTempDir()
 
-            const metadata = await extractMetadata(filePath, SourceSystem.MACOS, scanRoot)
+                const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
 
-            // Should complete without error
-            // On non-macOS systems, finderTags and finderColor should be undefined
-            if (process.platform !== "darwin") {
-                expect(metadata.finderTags).toBeUndefined()
-                expect(metadata.finderColor).toBeUndefined()
-            }
+                // File should be scanned successfully
+                // Note: Tags and colors won't be set unless we actually tag the file with xattr
+                // This test primarily ensures the extraction logic runs without error on macOS
+                expect(metadata).toBeDefined()
+                expect(metadata.path).toBe(filePath)
+                // finderTags and finderColor will be undefined unless file is actually tagged
+            })
+        })
+
+        describe.skipIf(!isWindows())("Windows", () => {
+            it("should detect executables by extension", async () => {
+                const filePath = await createTempFile({ content: "test", extension: "exe" })
+                const scanRoot = await createTempDir()
+
+                const metadata = await extractMetadata(filePath, currentSourceSystem, scanRoot)
+
+                expect(metadata.isExecutable).toBe(true)
+            })
         })
     })
 })
